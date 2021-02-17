@@ -13,7 +13,7 @@ setup(
 		'requests>=0',
 		'selenium>=0',
 		'beautifulsoup4>=0',
-		'jxbase>=2.19'
+		'jxbase>=2.20'
 		'cnstock>=0'
 		], 	# 这是本包要用到的依赖包
 	packages=['jxcrawl'], 			# 这是实际待安装的包名，即是个内含 __init__.py 的目录名，可以当作未来的包名引用，如 import pandas as pd 等，这里注意，子包必须带上父包前缀才能被找到安装，如 jxcrawl.sina 会被找到，但只写 sina 不会被找到，虽然他也是包名
