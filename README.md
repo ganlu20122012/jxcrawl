@@ -1,5 +1,7 @@
-# jxcrawl
+包名：jxcrawl
 本项目用 python （3.X）编写，专注于获取公开（股市行情）数据。
+安装方法： 
+pip install jxcrawl
 
 申明：
 1. 调用本包中的接口，将直接从公开网站拿公开数据.
