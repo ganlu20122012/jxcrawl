@@ -10,9 +10,9 @@ setup(
 	license='BSD',
 	#zip_safe = False, 				# 这个参数为 False ，使得安装到目标位置后是平坦的目录文件形式，而非 .egg 形式
 	install_requires = [
-		'requests>=0',
-		'selenium>=0',
-		'beautifulsoup4>=0',
+		'requests>=1',
+		'selenium>=1',
+		'beautifulsoup4>=1',
 		'jxbase>=2.20'
 		'cnstock>=1'
 		], 	# 这是本包要用到的依赖包
