@@ -74,7 +74,7 @@ def is_trade_date():
 			print(jxb.get_current_time(),func_name,'由于 get_sina_realtime_stock_data() 和 get_netease_realtime_stock_data() 没有返回实时数据，本函数无法判断今天是否交易日，将返回 None')
 			return None
 
-	if str(df.ix[0,'date']) == str(xtoday):
+	if str(df.loc[0,'date']) == str(xtoday):
 		return True
 	else:
 		return False
@@ -244,13 +244,19 @@ def get_page_by_browser(url,browser=None):
 
 
 
-def get_browser_driver(browser="phantomjs.exe"):
+def get_browser_driver(browser=None):
 	"""
 	功能说明：根据传入的浏览器（可以全路径文件名）程序，返回一个 selenium 处理后的 webdriver，用于浏览器自动化
 	若用户没有 phantomjs.exe 浏览器，可到以下链接下载（下载后将 phantomjs.exe 解压出来放到 path 所指的一条路径即可）：
 	https://phantomjs.org/download.html
 	https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-windows.zip
 	"""
+	if browser is None:
+		if jxb.is_windows() == True:
+			browser = "phantomjs.exe"
+		if jxb.is_linux() == True:
+			browser = "phantomjs"
+
 	browser_driver = None
 	#browser_driver = webdriver.PhantomJS(browser, service_args=['--ignore-ssl-errors=true', '--ssl-protocol=any']) 
 	try:	
@@ -885,23 +891,23 @@ def wash_netease_k_data(df,index=False):
 		return df
 
 	index1_arr = list(df.index)
-	code = df.ix[index1_arr[0],'code']
+	code = df.loc[index1_arr[0],'code']
 
 	# 先遍历所有行，去掉 涨跌额为 'None' 的行
 	for i in index1_arr:
 		if index == True:
 			# 指数进入这里
-			if df.ix[i,'change'] == 'None':
-				if df.ix[i,'last_close'] == 'None':
-					df.ix[i,'last_close'] = df.ix[i,'open'] 			# 如果昨收价不存在，一般是首个交易日，则令其昨收价等于今天开盘价，方便程序处理
-				df.ix[i,'change']=str(float(df.ix[i,'close']) - float(df.ix[i,'last_close']))
-				df.ix[i,'percent']=str((float(df.ix[i,'close']) - float(df.ix[i,'last_close'])) / float(df.ix[i,'last_close']))	
+			if df.loc[i,'change'] == 'None':
+				if df.loc[i,'last_close'] == 'None':
+					df.loc[i,'last_close'] = df.loc[i,'open'] 			# 如果昨收价不存在，一般是首个交易日，则令其昨收价等于今天开盘价，方便程序处理
+				df.loc[i,'change']=str(float(df.loc[i,'close']) - float(df.loc[i,'last_close']))
+				df.loc[i,'percent']=str((float(df.loc[i,'close']) - float(df.loc[i,'last_close'])) / float(df.loc[i,'last_close']))	
 			# 发现中小板指在早期时，即2008-06-27 日及以前的成交额都是 'None', 故用 0 去替换
-			if df.ix[i,'amount'] == 'None':
-				df.ix[i,'amount'] = 0
+			if df.loc[i,'amount'] == 'None':
+				df.loc[i,'amount'] = 0
 		else:
 			# 普通股进入这里，因为网易返回的普通股当 change 为'None' 时，则当天的 open,high,low.close等全为0 了，所以这行数据就不要了，直接 drop 掉
-			if df.ix[i,'change'] == 'None':
+			if df.loc[i,'change'] == 'None':
 				df = df.drop(i,axis=0)
 
 	df = df.replace(['None'],[0]) 			# 把 raw 数据中剩余的所有'None' 都替换为 0
@@ -924,8 +930,8 @@ def wash_netease_k_data(df,index=False):
 	if code == '000046':
 		temp_index_arr = [] 		# 临时数组，用于存放换手率为 None 的那些行标
 		for i in index1_arr:
-			if df.ix[i,'turnover'] == 'None':
-				df.ix[i,'turnover'] = 0
+			if df.loc[i,'turnover'] == 'None':
+				df.loc[i,'turnover'] = 0
 				temp_index_arr.append(i)
 		# 把这三列的数据类型先转换成 float （原先是 string 类型，这是网易返回的默认类型），以便下面进行数学计算
 		df.amount = df.amount.astype(dtype=float)
@@ -934,14 +940,14 @@ def wash_netease_k_data(df,index=False):
 		df.circulation_value = df.circulation_value.astype(dtype=float)
 		# 下面计算缺失的换手率和流通值
 		for i in temp_index_arr:
-			df.ix[i,'circulation_value'] = df.ix[i,'total_value'] * 0.25 			# 先计算出流通值
-			df.ix[i,'turnover'] = df.ix[i,'amount'] * 100 / df.ix[i,'circulation_value'] 		# 再计算出换手率
+			df.loc[i,'circulation_value'] = df.loc[i,'total_value'] * 0.25 			# 先计算出流通值
+			df.loc[i,'turnover'] = df.loc[i,'amount'] * 100 / df.loc[i,'circulation_value'] 		# 再计算出换手率
 
 	if code == '600653':
 		temp_index_arr = [] 		# 临时数组，用于存放换手率为 None 的那些行标
 		for i in index1_arr:
-			if df.ix[i,'turnover'] == 'None':
-				df.ix[i,'turnover'] = 0
+			if df.loc[i,'turnover'] == 'None':
+				df.loc[i,'turnover'] = 0
 				temp_index_arr.append(i)
 		# 把这三列的数据类型先转换成 float （原先是 string 类型，这是网易返回的默认类型），以便下面进行数学计算
 		df.amount = df.amount.astype(dtype=float)
@@ -950,8 +956,8 @@ def wash_netease_k_data(df,index=False):
 		df.circulation_value = df.circulation_value.astype(dtype=float)
 		# 下面计算缺失的换手率和流通值
 		for i in temp_index_arr:
-			df.ix[i,'circulation_value'] = df.ix[i,'total_value'] * 0.682 			# 先计算出流通值
-			df.ix[i,'turnover'] = df.ix[i,'amount'] * 100 / df.ix[i,'circulation_value'] 		# 再计算出换手率
+			df.loc[i,'circulation_value'] = df.loc[i,'total_value'] * 0.682 			# 先计算出流通值
+			df.loc[i,'turnover'] = df.loc[i,'amount'] * 100 / df.loc[i,'circulation_value'] 		# 再计算出换手率
 
 	# 特殊处理到这里结束
 	# =====================================
